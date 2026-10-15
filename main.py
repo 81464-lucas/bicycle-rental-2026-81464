@@ -1,47 +1,86 @@
 from bicycle import Bicycle
 
 
+def show_menu():
+    print("\nBicycle Rental System")
+    print("1. View bicycles")
+    print("2. Rent a bicycle")
+    print("3. Return a bicycle")
+    print("4. Calculate rental cost")
+    print("5. Exit")
+
+
+def find_bicycle(bicycles, bicycle_id):
+    for bicycle in bicycles:
+        if bicycle.item_id.lower() == bicycle_id.lower():
+            return bicycle
+    return None
+
+
 def main():
     bicycles = [
-        Bicycle("B001", "City Bike", 10.00, "City"),
-        Bicycle("B002", "Mountain Bike", 15.50, "Mountain"),
-        Bicycle("B003", "Road Bike", 18.00, "Road"),
-        Bicycle.from_string("B004, Electric Bike, 25.00", "Electric"),
+        Bicycle("B001", "Mountain Bike", 15.00, "Mountain"),
+        Bicycle("B002", "City Bike", 10.00, "City"),
+        Bicycle("B003", "Electric Bike", 25.00, "Electric"),
+        Bicycle("B004", "Road Bike", 18.00, "Road"),
     ]
 
-    print("Bicycle Rental System")
-    print("-" * 40)
+    while True:
+        show_menu()
+        choice = input("Enter your choice: ").strip()
 
-    for bicycle in bicycles:
-        print(bicycle)
+        if choice == "1":
+            print("\nAvailable bicycles:")
+            for bicycle in bicycles:
+                print(bicycle)
 
-    print("\nSuccessful rental examples")
-    print("-" * 40)
+        elif choice == "2":
+            bicycle_id = input("Enter bicycle ID: ").strip()
+            bicycle = find_bicycle(bicycles, bicycle_id)
 
-    bicycles[0].rent()
-    print(f"{bicycles[0].name} rented for 3 days: EUR{bicycles[0].calculate_rental_cost(3):.2f}")
-    bicycles[0].return_item()
-    print(f"{bicycles[0].name} returned successfully.")
+            if bicycle is None:
+                print("Bicycle not found.")
+                continue
 
-    bicycles[1].rent()
-    print(f"{bicycles[1].name} rented for 2 days: EUR{bicycles[1].calculate_rental_cost(2):.2f}")
-    bicycles[1].return_item()
+            try:
+                print(bicycle.rent())
+            except ValueError as error:
+                print(f"Error: {error}")
 
-    print("\nError handling examples")
-    print("-" * 40)
+        elif choice == "3":
+            bicycle_id = input("Enter bicycle ID: ").strip()
+            bicycle = find_bicycle(bicycles, bicycle_id)
 
-    try:
-        Bicycle("", "Invalid Bike", 10)
-    except ValueError as error:
-        print(f"Validation error: {error}")
+            if bicycle is None:
+                print("Bicycle not found.")
+                continue
 
-    try:
-        bicycles[2].rent()
-        bicycles[2].rent()
-    except RuntimeError as error:
-        print(f"Rental error: {error}")
+            try:
+                print(bicycle.return_item())
+            except ValueError as error:
+                print(f"Error: {error}")
 
-    bicycles[2].return_item()
+        elif choice == "4":
+            bicycle_id = input("Enter bicycle ID: ").strip()
+            bicycle = find_bicycle(bicycles, bicycle_id)
+
+            if bicycle is None:
+                print("Bicycle not found.")
+                continue
+
+            try:
+                days = int(input("Enter number of rental days: ").strip())
+                cost = bicycle.calculate_rental_cost(days)
+                print(f"Total rental cost: €{cost:.2f}")
+            except ValueError as error:
+                print(f"Error: {error}")
+
+        elif choice == "5":
+            print("Goodbye!")
+            break
+
+        else:
+            print("Invalid choice. Please choose 1, 2, 3, 4 or 5.")
 
 
 if __name__ == "__main__":
