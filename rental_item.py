@@ -2,44 +2,58 @@ from abc import ABC, abstractmethod
 
 
 class RentalItem(ABC):
-    def __init__(self, item_id, name, daily_rate):
-        if not isinstance(item_id, str) or not item_id.strip():
-            raise ValueError("item_id must be a non-empty string.")
-        if not isinstance(name, str) or not name.strip():
-            raise ValueError("name must be a non-empty string.")
-        if not isinstance(daily_rate, (int, float)) or daily_rate <= 0:
-            raise ValueError("daily_rate must be a positive number.")
+    """Abstract base class for items that can be rented."""
 
-        self.item_id = item_id.strip()
-        self.name = name.strip()
-        self.daily_rate = float(daily_rate)
+    def __init__(self, item_id, name, daily_rate):
+        self.item_id = self._validate_text(item_id, "Item ID")
+        self.name = self._validate_text(name, "Name")
+        self.daily_rate = self._validate_price(daily_rate)
         self.is_available = True
 
-    @classmethod
-    def from_string(cls, data):
-        if not isinstance(data, str):
-            raise TypeError("data must be a string.")
+    @staticmethod
+    def _validate_text(value, field_name):
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError(f"{field_name} must be a non-empty string.")
+        return value.strip()
 
-        parts = [part.strip() for part in data.split(",")]
-        if len(parts) != 3:
-            raise ValueError("data must have the format: id,name,daily_rate")
-
-        item_id, name, daily_rate = parts
-        try:
-            daily_rate = float(daily_rate)
-        except ValueError as error:
-            raise ValueError("daily_rate must be a number.") from error
-
-        return cls(item_id, name, daily_rate)
+    @staticmethod
+    def _validate_price(value):
+        if not isinstance(value, (int, float)) or isinstance(value, bool):
+            raise ValueError("Daily rate must be a number.")
+        if value <= 0:
+            raise ValueError("Daily rate must be greater than zero.")
+        return float(value)
 
     @abstractmethod
     def calculate_rental_cost(self, days):
+        """Calculate the total rental cost."""
         pass
 
     @abstractmethod
     def rent(self):
+        """Rent the item."""
         pass
 
     @abstractmethod
     def return_item(self):
+        """Return the item."""
         pass
+
+    @classmethod
+    def from_string(cls, data):
+        """Create a rental item from a comma-separated string."""
+        parts = data.strip().split(",")
+
+        if len(parts) != 3:
+            raise ValueError("Data must contain item ID, name and daily rate.")
+
+        item_id, name, daily_rate = parts
+        return cls(item_id.strip(), name.strip(), float(daily_rate.strip()))
+
+    def __str__(self):
+        status = "Available" if self.is_available else "Rented"
+        return (
+            f"{self.__class__.__name__}("
+            f"ID: {self.item_id}, Name: {self.name}, "
+            f"Daily rate: €{self.daily_rate:.2f}, Status: {status})"
+        )
