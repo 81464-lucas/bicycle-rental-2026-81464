@@ -1,45 +1,35 @@
+
 # Bicycle Rental System
 
-CA1 project for the **Bicycle Rental System** assignment using Python and Object-Oriented Programming (OOP).
+**Name:** Lucas Esparza  Monroy
+**Student number:** 81464  
+**Python version:** Python 3.12  
 
-## Project description
+## Description
 
-This program manages a small collection of bicycles that can be rented and returned. It includes an abstract base class, inheritance, input validation, custom error handling and automated tests.
+This project is a simple Bicycle Rental System developed using Python Object-Oriented Programming.  
+It includes an abstract base class, inheritance, input validation, exception handling, class methods and automated unit tests.
 
-## Files
-
-- `rental_item.py`: abstract `RentalItem` class.
-- `bicycle.py`: `Bicycle` class that inherits from `RentalItem`.
-- `main.py`: demonstration program with successful and failed cases.
-- `test_bicycle.py`: automated tests using `pytest`.
-- `.gitignore`: files and folders excluded from Git.
-
-## How to run
+## How to run the application
 
 ```bash
 python main.py
 ```
 
-## How to run the tests
-
-Install pytest if needed:
+## How to run the automated tests
 
 ```bash
-pip install pytest
+python -m unittest test_bicycle.py
 ```
 
-Run the tests:
+## Assumptions
 
-```bash
-python -m pytest -v
-```
+- The rental cost is calculated using full days.
+- A bicycle cannot be rented if it is already rented.
+- A bicycle cannot be returned if it is not currently rented.
+- The daily rate must be greater than zero.
+- The number of rental days must be a positive whole number.
 
-## Features
+## AI assistance acknowledgement
 
-- Abstract class `RentalItem`.
-- Inheritance with `Bicycle(RentalItem)`.
-- Validation for IDs, names, daily rates and rental days.
-- Exceptions for invalid data and unavailable bicycles.
-- Alternative constructor using `@classmethod` and `from_string()`.
-- At least four bicycles in `main.py`.
-- More than ten automated tests.
+I used AI assistance to understand the assignment requirements, structure the Python OOP solution and review/debug the code. All code was reviewed, tested and adapted by me.
