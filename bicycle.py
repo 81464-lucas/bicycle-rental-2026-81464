@@ -2,41 +2,58 @@ from rental_item import RentalItem
 
 
 class Bicycle(RentalItem):
-    def __init__(self, item_id, name, daily_rate, bicycle_type="Standard"):
-        super().__init__(item_id, name, daily_rate)
+    """Represents a bicycle that can be rented."""
 
-        if not isinstance(bicycle_type, str) or not bicycle_type.strip():
-            raise ValueError("bicycle_type must be a non-empty string.")
-
-        self.bicycle_type = bicycle_type.strip()
-
-    @classmethod
-    def from_string(cls, data, bicycle_type="Standard"):
-        bicycle = super().from_string(data)
-        return cls(
-            bicycle.item_id,
-            bicycle.name,
-            bicycle.daily_rate,
-            bicycle_type,
-        )
+    def __init__(self, bicycle_id, model, daily_rate, bicycle_type="Standard"):
+        super().__init__(bicycle_id, model, daily_rate)
+        self.bicycle_type = self._validate_text(bicycle_type, "Bicycle type")
 
     def calculate_rental_cost(self, days):
-        if not isinstance(days, int) or days <= 0:
-            raise ValueError("days must be a positive whole number.")
+        days = self._validate_days(days)
         return self.daily_rate * days
 
     def rent(self):
         if not self.is_available:
-            raise RuntimeError(f"Bicycle {self.item_id} is not available.")
+            raise ValueError(f"Bicycle {self.item_id} is already rented.")
+
         self.is_available = False
-        return True
+        return f"Bicycle {self.item_id} has been rented successfully."
 
     def return_item(self):
         if self.is_available:
-            raise RuntimeError(f"Bicycle {self.item_id} was not rented.")
+            raise ValueError(f"Bicycle {self.item_id} is not currently rented.")
+
         self.is_available = True
-        return True
+        return f"Bicycle {self.item_id} has been returned successfully."
+
+    @staticmethod
+    def _validate_days(days):
+        if not isinstance(days, int) or isinstance(days, bool):
+            raise ValueError("Rental days must be a whole number.")
+        if days <= 0:
+            raise ValueError("Rental days must be greater than zero.")
+        return days
+
+    @classmethod
+    def from_string(cls, data):
+        """Create a bicycle from a comma-separated string.
+
+        Expected format: ID,Model,DailyRate,Type
+        """
+        parts = data.strip().split(",")
+
+        if len(parts) != 4:
+            raise ValueError(
+                "Data must contain bicycle ID, model, daily rate and type."
+            )
+
+        bicycle_id, model, daily_rate, bicycle_type = parts
+        return cls(
+            bicycle_id.strip(),
+            model.strip(),
+            float(daily_rate.strip()),
+            bicycle_type.strip(),
+        )
 
     def __str__(self):
-        status = "Available" if self.is_available else "Rented"
-        return f"{self.item_id}: {self.name} ({self.bicycle_type}) - EUR{self.daily_rate:.2f}/day - {status}"
+        return super().__str__() + f", Type: {self.bicycle_type}"
