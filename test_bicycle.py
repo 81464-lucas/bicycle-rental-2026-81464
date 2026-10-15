@@ -1,83 +1,78 @@
-import pytest
+import unittest
 
 from bicycle import Bicycle
 from rental_item import RentalItem
 
 
-def test_bicycle_is_subclass_of_rental_item():
-    bicycle = Bicycle("B001", "City Bike", 10.00)
-    assert isinstance(bicycle, RentalItem)
+class TestBicycle(unittest.TestCase):
+
+    def setUp(self):
+        self.bicycle = Bicycle("B001", "Mountain Bike", 15.00, "Mountain")
+
+    def test_create_bicycle_successfully(self):
+        self.assertEqual(self.bicycle.item_id, "B001")
+        self.assertEqual(self.bicycle.name, "Mountain Bike")
+        self.assertEqual(self.bicycle.daily_rate, 15.00)
+        self.assertTrue(self.bicycle.is_available)
+
+    def test_invalid_daily_rate_raises_error(self):
+        with self.assertRaises(ValueError):
+            Bicycle("B002", "City Bike", -5)
+
+    def test_zero_daily_rate_raises_error(self):
+        with self.assertRaises(ValueError):
+            Bicycle("B002", "City Bike", 0)
+
+    def test_empty_model_raises_error(self):
+        with self.assertRaises(ValueError):
+            Bicycle("B002", "   ", 10)
+
+    def test_rent_available_bicycle(self):
+        result = self.bicycle.rent()
+        self.assertFalse(self.bicycle.is_available)
+        self.assertIn("rented successfully", result)
+
+    def test_rent_already_rented_bicycle_raises_error(self):
+        self.bicycle.rent()
+        with self.assertRaises(ValueError):
+            self.bicycle.rent()
+
+    def test_return_rented_bicycle(self):
+        self.bicycle.rent()
+        result = self.bicycle.return_item()
+        self.assertTrue(self.bicycle.is_available)
+        self.assertIn("returned successfully", result)
+
+    def test_return_available_bicycle_raises_error(self):
+        with self.assertRaises(ValueError):
+            self.bicycle.return_item()
+
+    def test_calculate_rental_cost(self):
+        self.assertEqual(self.bicycle.calculate_rental_cost(3), 45.00)
+
+    def test_zero_days_raises_error(self):
+        with self.assertRaises(ValueError):
+            self.bicycle.calculate_rental_cost(0)
+
+    def test_negative_days_raises_error(self):
+        with self.assertRaises(ValueError):
+            self.bicycle.calculate_rental_cost(-2)
+
+    def test_non_integer_days_raises_error(self):
+        with self.assertRaises(ValueError):
+            self.bicycle.calculate_rental_cost(2.5)
+
+    def test_from_string_creates_bicycle(self):
+        bicycle = Bicycle.from_string("B010,Road Bike,20.00,Road")
+        self.assertEqual(bicycle.item_id, "B010")
+        self.assertEqual(bicycle.name, "Road Bike")
+        self.assertEqual(bicycle.daily_rate, 20.00)
+        self.assertEqual(bicycle.bicycle_type, "Road")
+
+    def test_rental_item_cannot_be_instantiated(self):
+        with self.assertRaises(TypeError):
+            RentalItem("R001", "Generic Item", 10)
 
 
-def test_bicycle_created_correctly():
-    bicycle = Bicycle("B001", "City Bike", 10.00, "City")
-    assert bicycle.item_id == "B001"
-    assert bicycle.name == "City Bike"
-    assert bicycle.daily_rate == 10.00
-    assert bicycle.bicycle_type == "City"
-    assert bicycle.is_available is True
-
-
-def test_invalid_empty_id():
-    with pytest.raises(ValueError):
-        Bicycle("", "City Bike", 10.00)
-
-
-def test_invalid_empty_name():
-    with pytest.raises(ValueError):
-        Bicycle("B002", "   ", 10.00)
-
-
-def test_invalid_daily_rate():
-    with pytest.raises(ValueError):
-        Bicycle("B003", "Road Bike", 0)
-
-
-def test_calculate_rental_cost():
-    bicycle = Bicycle("B004", "Mountain Bike", 15.50)
-    assert bicycle.calculate_rental_cost(4) == 62.00
-
-
-def test_invalid_rental_days():
-    bicycle = Bicycle("B005", "Road Bike", 18.00)
-    with pytest.raises(ValueError):
-        bicycle.calculate_rental_cost(0)
-
-
-def test_rent_bicycle():
-    bicycle = Bicycle("B006", "Electric Bike", 25.00)
-    assert bicycle.rent() is True
-    assert bicycle.is_available is False
-
-
-def test_rent_unavailable_bicycle():
-    bicycle = Bicycle("B007", "Electric Bike", 25.00)
-    bicycle.rent()
-    with pytest.raises(RuntimeError):
-        bicycle.rent()
-
-
-def test_return_bicycle():
-    bicycle = Bicycle("B008", "City Bike", 10.00)
-    bicycle.rent()
-    assert bicycle.return_item() is True
-    assert bicycle.is_available is True
-
-
-def test_return_available_bicycle():
-    bicycle = Bicycle("B009", "City Bike", 10.00)
-    with pytest.raises(RuntimeError):
-        bicycle.return_item()
-
-
-def test_from_string():
-    bicycle = Bicycle.from_string("B010, Folding Bike, 12.50", "Folding")
-    assert bicycle.item_id == "B010"
-    assert bicycle.name == "Folding Bike"
-    assert bicycle.daily_rate == 12.50
-    assert bicycle.bicycle_type == "Folding"
-
-
-def test_from_string_invalid_format():
-    with pytest.raises(ValueError):
-        Bicycle.from_string("B011,Folding Bike")
+if __name__ == "__main__":
+    unittest.main()
